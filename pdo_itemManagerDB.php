@@ -10,7 +10,7 @@
   <div>
     <?php
       $user = 'root';
-      $password = '';
+      $password = ' ';
       $dbName = 'ItemManager';
       $host = 'localhost:8080';
       $dsn = "mysql:host={$host};dbname={$dbName};charset=utf8";
