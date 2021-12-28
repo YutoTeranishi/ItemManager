@@ -26,7 +26,7 @@
         $pdo -> setAttribute(PDO::ATTR_EMULATE_PREPARES,false);
         //例外をスルーする設定
         $pdo -> setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-        echo "データベース{$dbName}に接続しました。";
+        //echo "データベース{$dbName}に接続しました。";
 
         $sql_pSet = "SELECT service_name,percentage_of_fee FROM pSetUp_fee_table";
         //プリペアドステートメント作成
@@ -39,14 +39,21 @@
 
         //print_r($result_pSet);
         //連想配列を定義
-        $result_pSet_array = [];
+        $result_pSet_array=$result_pSet;
         //$result_pSet_array= $result_pSet;
-
+        /*
         foreach($result_pSet as $row_pSet){
+          //デバック用出力
           print_r($row_pSet);
-          $result_pSet_array += $row_pSet;
-          print_r($result_pSet_array);
+
+          $result_pSet_array = array_replace_recursive($result_pSet_array,$row_pSet);
         }
+        */
+        //デバック用出力
+        //print("result_pSet_arrayを出力");
+        //print_r($result_pSet_array);
+        //print("result_pSet_array[0]['service_name']を出力");
+        //print($result_pSet[1]['service_name']);
 
         //print_r($result_pSet_array);
         //print($row_pSet['percentage_of_fee']);
@@ -73,7 +80,10 @@
         echo "<th>","中国国内送料","</th>";
         echo "<th>","販売時予定送料","</th>";
         echo "<th>","販売予定価格","</th>";
-        echo "<th>","購入手数料","</th>";
+        //echo "<th>","購入手数料","</th>";
+        foreach ($result_pSet as $p_sevice_name) {
+              echo "<th>",$p_sevice_name['service_name'],"</th>";
+        }
         echo "</tr></thead>";
 
         //値を取り出して行に表示する
@@ -91,6 +101,7 @@
           echo "<td>",$row['total_amount_Items'],"</td>";
           echo "<td>",$row['trans_fee_in_China'],"</td>";
           echo "<td>",$row['trans_fee_in_Japan'],"</td>";
+
           //販売予定価格をインプットフォームに変更
           //echo "<td>",$row['selling_price'],"</td>";
           echo '<td><input type="number" value="',$row['selling_price'],'" class="price"></td>';
@@ -98,14 +109,19 @@
           //echo "<td>",$row['purchase_setUp_fee'],"</td>";
 
           //プルダウン
-          echo "<td>";
+          /*echo "<td>";
           echo '<select name="test">';
           echo '<option value="test1">テスト1</option>';
           echo '<option value="test2">テスト2</option>';
           echo '<option value="test3">テスト3</option>';
           echo '</select>';
           echo "</td>";
-          //,selected("test1",[$test]),
+          */
+          //ラクマ・メルカリの販売手数料
+          foreach ($result_pSet as $pecentage_of_pfee) {
+            echo "<td>",$pecentage_of_pfee['percentage_of_fee'],"%</td>";
+          }
+
           echo '<td><button id="calc">再計算を計算</button></td>';
           echo "</tr>";
         }

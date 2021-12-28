@@ -1,6 +1,6 @@
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
-  //"id=calc"のボタンを登録
+  //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
   let elCalc = document.querySelector('#calc');
 
   elCalc.addEventListener('click',function(){
