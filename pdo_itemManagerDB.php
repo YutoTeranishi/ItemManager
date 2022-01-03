@@ -5,6 +5,51 @@
   $dbName = 'ItemManager';
   $host = 'localhost:3306';
   $dsn = "mysql:host={$host};dbname={$dbName};charset=utf8";
+
+  //NULL=配列とtextを結合し表示,HEADER
+  function print_pSet_cell($pSetArray,$printId1,$printId2,$headTxt,$midTxt,$tailTxt,$preCond,$typeOfCell){
+    //表示が2項目かのチェック
+    if($printId1!=NULL&&$printId2!=NULL){
+      $twoIds = true;
+    }else{
+      $twoIds = false;
+    }
+    //表示するセルの種類を記述
+    if($typeOfCell=="HEADER"){
+      $hf = "<th>";
+      $hl = "</th>";
+    }else{
+      $hf = "<td>";
+      $hl = "</td>";
+    }
+
+    if($preCond!=NULL){
+      if($twoIds){
+        foreach ($pSetArray as $p_sevice_name) {
+          if($p_sevice_name['type_of_fee']==$preCond){
+              echo $hf,$headTxt,$p_sevice_name[$printId1],$midTxt,$p_sevice_name[$printId2],$tailTxt,$hl;
+          }
+        }
+      }else{
+        foreach ($pSetArray as $p_sevice_name) {
+          if($p_sevice_name['type_of_fee']==$preCond){
+              echo $hf,$headTxt,$p_sevice_name[$printId1],$midTxt,$tailTxt,$hl;
+          }
+        }
+      }
+    }else{
+      if($twoIds){
+        foreach ($pSetArray as $p_sevice_name) {
+          echo $hf,$headTxt,$p_sevice_name[$printId1],$midTxt,$p_sevice_name[$printId2],$tailTxt,$hl;
+        }
+      }else{
+        foreach ($pSetArray as $p_sevice_name) {
+          echo $hf,$headTxt,$p_sevice_name[$printId1],$midTxt,$tailTxt,$hl;
+        }
+      }
+    }
+
+  }
 ?>
 
 
@@ -29,7 +74,7 @@
         //echo "データベース{$dbName}に接続しました。";
 
         //仕入れ、販売手数料のテーブルを取得
-        $sql_pSet = "SELECT service_name,percentage_of_fee FROM pSetUp_fee_table";
+        $sql_pSet = "SELECT service_name,percentage_of_fee,type_of_fee FROM pSetUp_fee_table";
         //プリペアドステートメント作成
         $stm_pSet = $pdo->prepare($sql_pSet);
 
@@ -50,6 +95,7 @@
         //結果の取得(連想配列)
         $result = $stm->fetchAll(PDO::FETCH_ASSOC);
 
+
         //テーブルのタイトル行
         echo '<table border="1" id="priceTable">';
         echo "<thead><tr>";
@@ -65,28 +111,13 @@
         echo "<th>","国際<br>送料","</th>";
         echo "<th>","一個あたりの<br>国際送料","</th>";
         echo "<th>","買付手数料","</th>";
-        //echo "<th>","購入手数料","</th>";
-        /*
-        foreach ($result_pSet as $p_sevice_name) {
-              echo "<th>",$p_sevice_name['service_name'],"</th>";
-        }*/
         echo "<th>","仕入れ<br>原価","</th>";
         echo "<th>","販売時<br>予定送料","</th>";
         echo "<th>","販売<br>予定価格","</th>";
-        foreach ($result_pSet as $p_sevice_name) {
-              echo "<th>",$p_sevice_name['service_name'],"<br>","手数料(",$p_sevice_name['percentage_of_fee'],"%)</th>";
-        }
 
-        foreach ($result_pSet as $p_sevice_name) {
-          echo "<th>",$p_sevice_name['service_name'],"<br>単体利益額","</th>";
-        }
-
-        foreach ($result_pSet as $p_sevice_name) {
-          echo "<th>",$p_sevice_name['service_name'],"<br>総利益額","</th>";
-        }
-        //echo "<th>","合計<br>利益額","</th>";
-        //echo "<th>","合計<br>利益額","</th>";
-
+        print_pSet_cell($result_pSet,'service_name','percentage_of_fee',NULL,"<br> 手数料(","%)","sell","HEADER");
+        print_pSet_cell($result_pSet,'service_name',NULL,NULL,"<br>単体利益額",NULL,"sell","HEADER");
+        print_pSet_cell($result_pSet,'service_name',NULL,NULL,"<br>総利益額",NULL,"sell","HEADER");
         echo "</tr></thead>";
 
         //値を取り出して行に表示する
@@ -129,11 +160,15 @@
           echo '</select>';
           echo "</td>";
           */
-          //ラクマ・メルカリの販売手数料
+          //仕入れ手数料を除き販売手数料を表示
+          print_pSet_cell($result_pSet,'percentage_of_fee',NULL,NULL,NULL,"%","sell","CELL");
+          /*
           foreach ($result_pSet as $pecentage_of_pfee) {
-            echo "<td>",$pecentage_of_pfee['percentage_of_fee'],"%</td>";
+            if($pecentage_of_pfee['type_of_fee']=="sell"){
+              echo "<td>",$pecentage_of_pfee['percentage_of_fee'],"%</td>";
+            }
           }
-          
+          */
           echo "<td id=uniprice_",$i,">","testpriceA","</td>";
           echo "<td>","testpriceB","</td>";
           echo "<td id=totalprice_",$i,">","testpriceC","</td>";
