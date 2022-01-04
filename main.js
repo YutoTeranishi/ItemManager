@@ -2,7 +2,7 @@
 window.addEventListener('DOMContentLoaded',function(){
   //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
   let elCalc = document.querySelector('#calc');
-
+  
   elCalc.addEventListener('click',function(){
     let prices = document.querySelectorAll('.price');
 

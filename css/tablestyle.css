@@ -12,20 +12,21 @@ table{
 
 tr *{
   padding: : 0.5em 1em 0.5em 1em;
-}
-
-tbody tr *:first-child{
-  width: 4em;
   text-align: left;
 }
+/*
+tbody tr *:first-child{
+  width: 2em;
+  text-align: center;
+}
 tbody tr *:nth-child(2){
-  width: 10em;
+  width: 3em;
   text-align: left;
 }
 tbody tr *:nth-child(3){
-  width: 4em;
-  text-align: right;
-}
+  width: 2em;
+  text-align: left;
+}*/
 tbody tr:nth-child(even) td{
   background-color: #dff0ff;
 }

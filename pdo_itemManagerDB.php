@@ -14,6 +14,7 @@
     }else{
       $twoIds = false;
     }
+
     //表示するセルの種類を記述
     if($typeOfCell=="HEADER"){
       $hf = "<th>";
@@ -55,10 +56,12 @@
 
 <!DOCTYPE html>
 <html lang="ja">
+
   <head>
   <meta charset="utf-8">
   <title>PDOでデータベースに接続する</title>
-  <link herf="./css/tablestyle.css" rel="stylesheet">
+  <link href="css/tablestyle.css" rel="stylesheet">
+  <script src="calcButton.js"></script>
   </head>
 
   <body>
@@ -110,7 +113,7 @@
         echo "<th>","中国<br>国内送料","</th>";
         echo "<th>","国際<br>送料","</th>";
         echo "<th>","一個あたりの<br>国際送料","</th>";
-        echo "<th>","買付手数料","</th>";
+        print_pSet_cell($result_pSet,'percentage_of_fee',NULL,"買付手数料(","%)",NULL,"buy","HEADER");
         echo "<th>","仕入れ<br>原価","</th>";
         echo "<th>","販売時<br>予定送料","</th>";
         echo "<th>","販売<br>予定価格","</th>";
@@ -123,8 +126,15 @@
         //値を取り出して行に表示する
         echo "<tbody>";
         // カウンター
-        $i=0;
+        $i=0;$j=0;
         $price_yen = 0;
+        $setUp_fee_tmp = 0;
+        $setUp_fee_array =[];
+        $unitprofit=[];
+        $unitShipment=0;
+        $unitPfee=0;
+        $unitTfee_in_China=0;
+        $unitprice=0;
         //resultをrowとして各行処理
         foreach($result as $row){
           echo "<tr>";
@@ -134,20 +144,33 @@
           echo "<td>",$row['price_gen'],"</td>";
           echo "<td>",$row['rate_genToyen'],"</td>";
           //単価(円)を計算
-          $price_yen = $row['price_gen']*$row['rate_genToyen'];
+          $price_yen = number_format($row['price_gen']*$row['rate_genToyen'],2);
+
           echo "<td>",$price_yen,"</td>";
 
           echo "<td>",$row['amount_Item'],"</td>";
           echo "<td>",$row['total_amount_Items'],"</td>";
           echo "<td>",$row['trans_fee_in_China'],"</td>";
-          echo "<td>","6500","</td>";
-          echo "<td>","200","</td>";
-          echo "<td>","100","</td>";
-          echo "<td>","350","</td>";
-          //echo "<td>",$row['trans_fee_in_Japan'],"</td>";
+          $unitTfee_in_China = $row['trans_fee_in_China']/$row['amount_Item']; //一つあたりの中国国内送料(元)
+          echo "<td>",$row['international_shipment'],"円</td>";//国際送料
+
+          $unitShipment = number_format($row['international_shipment']/$row['total_amount_Items'],2);
+
+          echo "<td>",$unitShipment,"円</td>";//1個あたりの国際送料
+
+          //1種類あたりの買い付け手数料
+          foreach ($result_pSet as $pecentage_of_pfee) {
+            if($pecentage_of_pfee['type_of_fee']=="buy"){
+              $unitPfee = number_format(($row['price_gen']*$row['amount_Item']*($pecentage_of_pfee['percentage_of_fee']/100))*$row['rate_genToyen'],2);
+              echo "<td>",$unitPfee,"円</td>";
+            }
+          }
+          //仕入れ原価
+          $unitprice=number_format($price_yen+$unitShipment+($unitPfee/$row['amount_Item'])+($unitTfee_in_China*$row['rate_genToyen']),2);
+          echo "<td>",$unitprice,"</td>";//仕入れ原価
           echo '<td><input type="number" value="',$row['trans_fee_in_Japan'],'" class="price" style="width:70px;"></td>';
+
           //販売予定価格をインプットフォームに変更(style="width:100px;はCSSに後変更)
-          //echo "<td>",$row['selling_price'],"</td>";
           echo '<td><input type="number" value="',$row['selling_price'],'" class="price" style="width:70px;"></td>';
 
 
@@ -160,29 +183,48 @@
           echo '</select>';
           echo "</td>";
           */
+
           //仕入れ手数料を除き販売手数料を表示
-          print_pSet_cell($result_pSet,'percentage_of_fee',NULL,NULL,NULL,"%","sell","CELL");
-          /*
           foreach ($result_pSet as $pecentage_of_pfee) {
             if($pecentage_of_pfee['type_of_fee']=="sell"){
-              echo "<td>",$pecentage_of_pfee['percentage_of_fee'],"%</td>";
+              $setUp_fee_tmp = $row['selling_price']*($pecentage_of_pfee['percentage_of_fee']/100);
+              echo "<td>",$setUp_fee_tmp,"円</td>";
+              $setUp_fee_array[$j]=$setUp_fee_tmp;
+
+              //単位利益額
+              $unitprofit[$j]=$row['selling_price']-($row['trans_fee_in_Japan']+$setUp_fee_tmp+$unitprice);
+              $j++;
             }
           }
-          */
-          echo "<td id=uniprice_",$i,">","testpriceA","</td>";
-          echo "<td>","testpriceB","</td>";
-          echo "<td id=totalprice_",$i,">","testpriceC","</td>";
-          echo "<td>","testpriceD","</td>";
+          //単体利益額(マイナス時赤字表記)
+          for($z=0;$z<count($unitprofit);$z++){
+              if($unitprofit[$z]>0.0){
+                  echo "<td id=unitprofit_",$i+$z,">",$unitprofit[$z],"円</td>";
+              }else{
+                  echo "<td id=unitprofit_",$i+$z,"><font color='RED'>",$unitprofit[$z],"円 </font></td>";
+              }
+
+          }
+          //合計利益額(マイナス時赤字表記)
+          for($z=0;$z<count($unitprofit);$z++){
+            if($unitprofit[$z]>0.0){
+              echo "<td id=totalprofit_",$i+$z,">",$unitprofit[$z]*$row['amount_Item'],"円 </td>";
+            }else{
+              echo "<td id=totalprofit_",$i+$z,"><font color='RED'>",$unitprofit[$z]*$row['amount_Item'],"円 </font></td>";
+            }
+          }
 
           //ボタンのidを行数に応じて設定
-          echo '<td><button id="calc_',$i,'">';
+          echo '<td><button id="calcB_',$i,'" class="calcButton">';
           echo '損益を計算</button></td>';
           echo "</tr>";
           $price_yen = 0;
           $i++;
+          $j=0;
         }
         echo "</tbody>";
         echo "</table>";
+
 
       } catch (\Exception $e) {
         echo '<span class="error">エラーがありました。</span><br>';
@@ -193,7 +235,7 @@
       $pdo = NULL;
 
      ?>
-
+    <div id="output">aaa</div>
   </div>
   </body>
 
