@@ -1,8 +1,52 @@
+
+function intTable(table){
+  let colN=0;
+  let txtFId="";
+  const rows_arr=new Array();
+  const cells_arr=new Array();
+
+  for(var i=0;i<table.rows.length-1;i++){
+
+      //セルの中身をテスト出力
+      for(let cell of table.rows[i+1].cells){
+        if(colN==13||colN==14){
+          if(colN==13){
+            txtFId = 'trans_fee_jp_'+i;
+          }else{
+            txtFId = 'selling_price_'+i;
+          }
+          let element = document.getElementById(txtFId);
+          //数値に変換
+          let addelement = parseInt(element.value);
+          cells_arr.push(addelement);
+          //console.log(element.value);
+          //console.log(addelement);
+        }else{
+            if(colN!=21){
+              //console.log(parseFloat(cell.innerText));
+              cells_arr.push(parseFloat(cell.innerText));
+            }
+        }
+        colN++;
+     }
+    rows_arr[i]=cells_arr.slice((colN-1)*i,cells_arr.length);//参照渡し??
+
+    colN=0;
+    //i++;
+  }
+  //console.log(rows_arr);
+  return rows_arr;
+}
+
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
   //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
   //let elCalc = document.querySelector('#calc');
-  let calcBs = document.querySelectorAll('.calcButton');
+  let table = document.getElementById('priceTable');
+
+  const table_int =intTable(table);
+  const param = JSON.parse(JSON.stringify('<?php echo $param_json; ?>'));  //JSONデコード
+  console.log(param);
   /*
   calcBs.addEventListener('click',function(){
     let prices = document.querySelectorAll('.price');
@@ -21,22 +65,34 @@ window.addEventListener('DOMContentLoaded',function(){
   });
   */
   let bId="";
-  //複数のボタン反応
-  for(var i=0; i< calcBs.length;i++){
-    calcBs[i].addEventListener('click',function(){
-      console.log("click!!!",i);
-       if(i==2){
-         let html = "bbb";
-         document.querySelector('#output').innerHTML = html;
-       }
+
+  for(var i=0;i<table.rows.length-1;i++){
+      txtFId = 'trans_fee_jp_'+i;
+      txtFId2 = 'selling_price_'+i;
+    document.getElementById(txtFId).addEventListener('change', function(){
+      //table_int =intTable(table);
+      table = document.getElementById('priceTable');
+      const table_tmp =intTable(table);
+      const table_int=table_tmp;
+
+      console.log(table_int);
     });
 
-    //それぞれのボタンをidで識別
-    /*
+    document.getElementById(txtFId2).addEventListener('change', function(){
+      const table_tmp =intTable(table);
+      const table_int=table_tmp;
+
+      console.log(table_int);
+    });
+
+    //textformのid
     bId = "calcB_"+i;
-    let calcBs = document.querySelectorById(bId);
-    */
+      document.getElementById(bId).addEventListener('click', function(){
+        console.log('id名「' + this.id + '」のボタンを押しました。');
+        console.log(table_int);
+      });
 
   }
 
+  console.log(table_int);
 });

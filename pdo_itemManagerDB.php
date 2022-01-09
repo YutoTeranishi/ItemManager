@@ -98,6 +98,8 @@
         //結果の取得(連想配列)
         $result = $stm->fetchAll(PDO::FETCH_ASSOC);
 
+        //php受け渡し
+        $param_json = json_encode($result_pSet);  //JSONエンコード
 
         //テーブルのタイトル行
         echo '<table border="1" id="priceTable">';
@@ -168,10 +170,11 @@
           //仕入れ原価
           $unitprice=number_format($price_yen+$unitShipment+($unitPfee/$row['amount_Item'])+($unitTfee_in_China*$row['rate_genToyen']),2);
           echo "<td>",$unitprice,"</td>";//仕入れ原価
-          echo '<td><input type="number" value="',$row['trans_fee_in_Japan'],'" class="price" style="width:70px;"></td>';
+          //販売予定送料
+          echo '<td><input type="number" value="',$row['trans_fee_in_Japan'],'" class="price" id="trans_fee_jp_',$i,'" style="width:70px;"></td>';
 
           //販売予定価格をインプットフォームに変更(style="width:100px;はCSSに後変更)
-          echo '<td><input type="number" value="',$row['selling_price'],'" class="price" style="width:70px;"></td>';
+          echo '<td><input type="number" value="',$row['selling_price'],'" class="price" id="selling_price_',$i,'" style="width:70px;"></td>';
 
 
           //プルダウン
@@ -235,7 +238,7 @@
       $pdo = NULL;
 
      ?>
-    <div id="output">aaa</div>
+    <div id="output">デバック用出力</div>
   </div>
   </body>
 
