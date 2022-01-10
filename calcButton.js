@@ -41,12 +41,11 @@ function intTable(table){
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
   //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
-  //let elCalc = document.querySelector('#calc');
   let table = document.getElementById('priceTable');
 
   const table_int =intTable(table);
-  const param = JSON.parse(JSON.stringify('<?php echo $param_json; ?>'));  //JSONデコード
-  console.log(param);
+  //phpの値をテスト表示
+  console.log(table_pSet);
   /*
   calcBs.addEventListener('click',function(){
     let prices = document.querySelectorAll('.price');

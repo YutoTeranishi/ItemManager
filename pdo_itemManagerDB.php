@@ -99,7 +99,13 @@
         $result = $stm->fetchAll(PDO::FETCH_ASSOC);
 
         //php受け渡し
-        $param_json = json_encode($result_pSet);  //JSONエンコード
+        $param_json_pSet = json_encode($result_pSet);  //JSONエンコード
+?>
+<script type="text/javascript">
+  let table_pSet=JSON.parse('<?php echo $param_json_pSet; ?>');//javascriptファイルに値を渡す
+</script>
+<?php
+
 
         //テーブルのタイトル行
         echo '<table border="1" id="priceTable">';
