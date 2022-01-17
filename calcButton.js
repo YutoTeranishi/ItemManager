@@ -1,4 +1,4 @@
-
+//tableの数値をint化
 function intTable(table){
   let colN=0;
   let txtFId="";
@@ -38,6 +38,52 @@ function intTable(table){
   return rows_arr;
 }
 
+//販売手数料の計算
+function calc_selling_setUp_fee(table,col_num,arr_setUp_table){
+ //const cost_pSet = new Array(arr_setUp_table.length);
+ let n =0;
+ let m =0;
+ let sCounter = 0;//販売手数料の個数
+ const cost_pSets = new Array(table.length);
+
+ for(let x = 0;x<arr_setUp_table.length;x++){
+     if(arr_setUp_table[x]['type_of_fee']=="sell"){
+      sCounter++;
+     }
+ }
+ //cost_pSetを二次元配列化
+ for(let y=0;y<cost_pSets.length;y++){
+   cost_pSets[y] = new Array(sCounter).fill(0);
+ }
+
+ //販売手数料の計算と格納
+ for(let i = 0;i<table.length;i++){
+   for(let j = 0;j<arr_setUp_table.length;j++){
+       if(arr_setUp_table[j]['type_of_fee']=="sell"){
+        cost_pSets[i][m] = table[i][col_num] * (arr_setUp_table[j]['percentage_of_fee']/100);
+        cost_pSets[i][m]=cost_pSets[i][m].toFixed(1);//有効数字小数点以下1桁
+        m++;
+       }
+   }
+   m=0;
+ }
+ return cost_pSets;
+}
+
+function print_sSet_cells(arr_pSet){
+  let html = arr_pSet[0][0]+'円';
+  let id = "sSetUp_fee_";
+  for(let i =0;i<arr_pSet.length;i++){
+    for(let j =0;j<arr_pSet[i].length;j++){
+      id="#sSetUp_fee_"+i+"_"+j;
+      html=arr_pSet[i][j]+"円";
+      document.querySelector(id).innerHTML = html;
+    }
+  }
+
+
+
+}
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
   //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
@@ -45,7 +91,9 @@ window.addEventListener('DOMContentLoaded',function(){
 
   const table_int =intTable(table);
   //phpの値をテスト表示
-  console.log(table_pSet);
+  //console.log(table_pSet);
+  //console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
+
   /*
   calcBs.addEventListener('click',function(){
     let prices = document.querySelectorAll('.price');
@@ -75,6 +123,8 @@ window.addEventListener('DOMContentLoaded',function(){
       const table_int=table_tmp;
 
       console.log(table_int);
+      console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
+      print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
     });
 
     document.getElementById(txtFId2).addEventListener('change', function(){
@@ -82,6 +132,8 @@ window.addEventListener('DOMContentLoaded',function(){
       const table_int=table_tmp;
 
       console.log(table_int);
+      console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
+      print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
     });
 
     //textformのid
@@ -89,6 +141,8 @@ window.addEventListener('DOMContentLoaded',function(){
       document.getElementById(bId).addEventListener('click', function(){
         console.log('id名「' + this.id + '」のボタンを押しました。');
         console.log(table_int);
+        console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
+        print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
       });
 
   }

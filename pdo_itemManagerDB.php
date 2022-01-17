@@ -3,7 +3,7 @@
   $user = 'root';
   $password = '';
   $dbName = 'ItemManager';
-  $host = 'localhost:3306';
+  $host ='localhost:3306';
   $dsn = "mysql:host={$host};dbname={$dbName};charset=utf8";
 
   //NULL=配列とtextを結合し表示,HEADER
@@ -197,7 +197,7 @@
           foreach ($result_pSet as $pecentage_of_pfee) {
             if($pecentage_of_pfee['type_of_fee']=="sell"){
               $setUp_fee_tmp = $row['selling_price']*($pecentage_of_pfee['percentage_of_fee']/100);
-              echo "<td>",$setUp_fee_tmp,"円</td>";
+              echo "<td id = sSetUp_fee_",$i,"_",$j, ">",$setUp_fee_tmp,"円</td>";
               $setUp_fee_array[$j]=$setUp_fee_tmp;
 
               //単位利益額
