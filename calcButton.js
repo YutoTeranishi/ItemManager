@@ -39,7 +39,7 @@ function intTable(table){
 }
 
 //販売手数料の計算
-function calc_selling_setUp_fee(table,col_num,arr_setUp_table){
+function calc_selling_setUp_fee(table,arr_setUp_table){
  //const cost_pSet = new Array(arr_setUp_table.length);
  let n =0;
  let m =0;
@@ -60,7 +60,7 @@ function calc_selling_setUp_fee(table,col_num,arr_setUp_table){
  for(let i = 0;i<table.length;i++){
    for(let j = 0;j<arr_setUp_table.length;j++){
        if(arr_setUp_table[j]['type_of_fee']=="sell"){
-        cost_pSets[i][m] = table[i][col_num] * (arr_setUp_table[j]['percentage_of_fee']/100);
+        cost_pSets[i][m] = table[i][14] * (arr_setUp_table[j]['percentage_of_fee']/100);
         cost_pSets[i][m]=cost_pSets[i][m].toFixed(1);//有効数字小数点以下1桁
         m++;
        }
@@ -70,19 +70,57 @@ function calc_selling_setUp_fee(table,col_num,arr_setUp_table){
  return cost_pSets;
 }
 
-function print_sSet_cells(arr_pSet){
+//単体利益額の計算
+function calc_uniProfits(table,arr_cost_pSets){
+
+  const uniProfits = new Array(arr_cost_pSets.length);
+
+  for(let y=0;y<uniProfits.length;y++){
+    uniProfits[y] = new Array(arr_cost_pSets[y].length).fill(0);
+  }
+
+  for(let i=0;i<arr_cost_pSets.length;i++){
+    for(let j=0;j<arr_cost_pSets[i].length;j++){
+        uniProfits[i][j]=table[i][14]-(table[i][12]+table[i][13]+parseFloat(arr_cost_pSets[i][j]));
+        uniProfits[i][j]=uniProfits[i][j].toFixed(1);
+
+    }
+  }
+
+ return uniProfits;
+}
+
+function calc_totalProfits(table,uniProfits){
+  const totalProfits=new Array(uniProfits.length);
+
+  for(let y=0;y<totalProfits.length;y++){
+    totalProfits[y] = new Array(uniProfits[y].length).fill(0);
+  }
+
+  for(let i=0;i<uniProfits.length;i++){
+    for(let j=0;j<uniProfits[i].length;j++){
+        totalProfits[i][j]=parseFloat(uniProfits[i][j])*table[i][6];
+        totalProfits[i][j]=totalProfits[i][j].toFixed(1);
+
+    }
+  }
+
+  return totalProfits;
+}
+
+
+function print_sSet_cells(arr_pSet,html_id){
   let html = arr_pSet[0][0]+'円';
-  let id = "sSetUp_fee_";
+  let id_tmp = "#"+html_id;
+  let id;
+
   for(let i =0;i<arr_pSet.length;i++){
     for(let j =0;j<arr_pSet[i].length;j++){
-      id="#sSetUp_fee_"+i+"_"+j;
+      id=id_tmp+i+"_"+j;
       html=arr_pSet[i][j]+"円";
       document.querySelector(id).innerHTML = html;
     }
   }
-
-
-
 }
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
@@ -90,28 +128,11 @@ window.addEventListener('DOMContentLoaded',function(){
   let table = document.getElementById('priceTable');
 
   const table_int =intTable(table);
-  //phpの値をテスト表示
-  //console.log(table_pSet);
-  //console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
 
-  /*
-  calcBs.addEventListener('click',function(){
-    let prices = document.querySelectorAll('.price');
-    //let price = <?php $result['trans_fee_in_Japan']?>;
-    let priceSum = 0;
-    console.log("click!!!");
-    for(let i = 0; i < prices.length; i++){
-      let priceVal = prices[i].value;
-      priceSum = priceSum + parseInt(priceVal);
-    }
-
-    //let html = '合計金額:<strong>' + priceSum + '</strong>円</div>';
-    let html = "aaa";
-    document.querySelector('#output').innerHTML = html;
-    //document.querySelector('output').innerHTML = price.length;
-  });
-  */
   let bId="";
+  let sSetUp_arr = new Array();
+  let arr_uniProfits =new Array();
+  let arr_totalProfits =new Array();
 
   for(var i=0;i<table.rows.length-1;i++){
       txtFId = 'trans_fee_jp_'+i;
@@ -122,9 +143,22 @@ window.addEventListener('DOMContentLoaded',function(){
       const table_tmp =intTable(table);
       const table_int=table_tmp;
 
+      //デバックログ
       console.log(table_int);
-      console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
-      print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
+
+      sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
+      console.log(sSetUp_arr);
+      print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
+
+      console.log(sSetUp_arr);
+      arr_uniProfits=calc_uniProfits(table_int,sSetUp_arr);
+      console.log(arr_uniProfits);
+      print_sSet_cells(arr_uniProfits,"unitprofit_");
+
+      arr_totalProfits=calc_totalProfits(table_int,arr_uniProfits);
+      console.log(arr_totalProfits);
+      print_sSet_cells(arr_totalProfits,"totalprofit_");
+
     });
 
     document.getElementById(txtFId2).addEventListener('change', function(){
@@ -132,20 +166,34 @@ window.addEventListener('DOMContentLoaded',function(){
       const table_int=table_tmp;
 
       console.log(table_int);
-      console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
-      print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
+
+      sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
+      print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
+
+      console.log(sSetUp_arr);
+      const arr_uniProfits=calc_uniProfits(table_int,sSetUp_arr);
+      console.log(arr_uniProfits);
+      print_sSet_cells(arr_uniProfits,"unitprofit_");
+
+
+      arr_totalProfits=calc_totalProfits(table_int,arr_uniProfits);
+      console.log(arr_totalProfits);
+      print_sSet_cells(arr_totalProfits,"totalprofit_");
+
     });
 
     //textformのid
     bId = "calcB_"+i;
       document.getElementById(bId).addEventListener('click', function(){
+
         console.log('id名「' + this.id + '」のボタンを押しました。');
         console.log(table_int);
-        console.log(calc_selling_setUp_fee(table_int,14,table_pSet));
-        print_sSet_cells(calc_selling_setUp_fee(table_int,14,table_pSet));
+        console.log(calc_selling_setUp_fee(table_int,table_pSet));
+
+        sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
+        print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
       });
 
   }
 
-  console.log(table_int);
 });

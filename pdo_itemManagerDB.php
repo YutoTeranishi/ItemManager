@@ -59,7 +59,7 @@
 
   <head>
   <meta charset="utf-8">
-  <title>PDOでデータベースに接続する</title>
+  <title>ItemManager</title>
   <link href="css/tablestyle.css" rel="stylesheet">
   <script src="calcButton.js"></script>
   </head>
@@ -208,18 +208,18 @@
           //単体利益額(マイナス時赤字表記)
           for($z=0;$z<count($unitprofit);$z++){
               if($unitprofit[$z]>0.0){
-                  echo "<td id=unitprofit_",$i+$z,">",$unitprofit[$z],"円</td>";
+                  echo "<td id=unitprofit_",$i,"_",$z,">",$unitprofit[$z],"円</td>";
               }else{
-                  echo "<td id=unitprofit_",$i+$z,"><font color='RED'>",$unitprofit[$z],"円 </font></td>";
+                  echo "<td id=unitprofit_",$i,"_",$z,"><font color='RED'>",$unitprofit[$z],"円 </font></td>";
               }
 
           }
           //合計利益額(マイナス時赤字表記)
           for($z=0;$z<count($unitprofit);$z++){
             if($unitprofit[$z]>0.0){
-              echo "<td id=totalprofit_",$i+$z,">",$unitprofit[$z]*$row['amount_Item'],"円 </td>";
+              echo "<td id=totalprofit_",$i,"_",$z,">",$unitprofit[$z]*$row['amount_Item'],"円 </td>";
             }else{
-              echo "<td id=totalprofit_",$i+$z,"><font color='RED'>",$unitprofit[$z]*$row['amount_Item'],"円 </font></td>";
+              echo "<td id=totalprofit_",$i,"_",$z,"><font color='RED'>",$unitprofit[$z]*$row['amount_Item'],"円 </font></td>";
             }
           }
 
@@ -244,7 +244,7 @@
       $pdo = NULL;
 
      ?>
-    <div id="output">デバック用出力</div>
+    <div id="output"></div>
   </div>
   </body>
 
