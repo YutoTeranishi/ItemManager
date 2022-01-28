@@ -51,10 +51,14 @@
     }
 
   }
+  function php_func(){
+    echo "Stay Safe";
+  }
 ?>
 
 
 <!DOCTYPE html>
+
 <html lang="ja">
 
   <head>
@@ -89,7 +93,20 @@
         $result_pSet_count = count($result_pSet);
         //print($result_pSet_count);
 
-        $sql = "SELECT * FROM price_table";
+        
+        $sql = "SELECT price_table.id as id,
+                       price_table.item_id as item_id,
+                       price_table.price_gen as price_gen,
+                       price_table.amount_Item as amount_Item,
+                       price_table.trans_fee_in_China as trans_fee_in_China,
+                       price_table.trans_fee_in_Japan as trans_fee_in_Japan,
+                       price_table.selling_price as selling_price,
+                       times_table.id as times_id,
+                       times_table.rate_genToyen as rate_genToyen,
+                       times_table.total_amount_Items as total_amount_Items,
+                       times_table.international_shipment as international_shipment
+                       FROM price_table,times_table";
+
         //プリペアドステートメント作成
         $stm = $pdo->prepare($sql);
 
@@ -100,6 +117,8 @@
 
         //php受け渡し
         $param_json_pSet = json_encode($result_pSet);  //JSONエンコード
+
+
 ?>
 <script type="text/javascript">
   let table_pSet=JSON.parse('<?php echo $param_json_pSet; ?>');//javascriptファイルに値を渡す
@@ -133,6 +152,8 @@
 
         //値を取り出して行に表示する
         echo "<tbody>";
+        //update.phpにPOSTで送信
+
         // カウンター
         $i=0;$j=0;
         $price_yen = 0;
@@ -146,6 +167,7 @@
         //resultをrowとして各行処理
         foreach($result as $row){
           echo "<tr>";
+          //echo '<form action="upDate.php" method="post">';
           echo "<td>",$row['id'],"</td>";
           echo "<td>",$row['item_id'],"</td>";
           echo "<td>",$row['times_id'],"</td>";
@@ -224,16 +246,26 @@
           }
 
           //ボタンのidを行数に応じて設定
-          echo '<td><button id="calcB_',$i,'" class="calcButton">';
-          echo '損益を計算</button></td>';
+          //echo '<td><input type ="button" id="calcB_',$i,'" class="calcButton" value = "変更を保存"  onClick="submit();"></td>';
+          //echo '<td><button id="calcB_',$i,'" class="calcButton">';
+          echo '<td><button type="submit" id="calcB_',$i,'" class="calcButton"';
+          //echo ' onClick="clickMe()">';
+          echo ' onClick=';
+          echo "clickMe();";
+          echo "location.href='./upDate.php'";
+          echo '>';
+          //echo ' onClick="location.href='./upDate.php'">';
+          //echo "location.href='./upDate.php'",'">';
+          echo '変更を保存</button></td>';
+          //echo '</form>';
           echo "</tr>";
           $price_yen = 0;
           $i++;
           $j=0;
         }
+
         echo "</tbody>";
         echo "</table>";
-
 
       } catch (\Exception $e) {
         echo '<span class="error">エラーがありました。</span><br>';
@@ -244,6 +276,7 @@
       $pdo = NULL;
 
      ?>
+    <button onclick="window.open('newResistration.php')">新規登録</button>
     <div id="output"></div>
   </div>
   </body>
