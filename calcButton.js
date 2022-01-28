@@ -89,7 +89,7 @@ function calc_uniProfits(table,arr_cost_pSets){
 
  return uniProfits;
 }
-
+//合計利益額の計算
 function calc_totalProfits(table,uniProfits){
   const totalProfits=new Array(uniProfits.length);
 
@@ -108,7 +108,7 @@ function calc_totalProfits(table,uniProfits){
   return totalProfits;
 }
 
-
+//販売時手数料、単位利益額、合計利益額の表示
 function print_sSet_cells(arr_pSet,html_id){
   let html = arr_pSet[0][0]+'円';
   let id_tmp = "#"+html_id;
@@ -122,11 +122,20 @@ function print_sSet_cells(arr_pSet,html_id){
     }
   }
 }
+
+function clickMe(){
+var result ='<form method="post" action="pdo_itemManagerDB.php"><input type="hidden" name="example" value="サンプル"></form>';
+//document.write(result);
+//console.log(result);
+//let html = '合計金額:<strong>' + priceSum + '</strong>円</div>';
+
+document.querySelector('#output').innerHTML = result;
+}
+
 //DOMの読み込み終了時の処理を登録
 window.addEventListener('DOMContentLoaded',function(){
   //"cssの#calcが適応されている最初のボタンを登録"のボタンを登録
   let table = document.getElementById('priceTable');
-
   const table_int =intTable(table);
 
   let bId="";
@@ -137,55 +146,55 @@ window.addEventListener('DOMContentLoaded',function(){
   for(var i=0;i<table.rows.length-1;i++){
       txtFId = 'trans_fee_jp_'+i;
       txtFId2 = 'selling_price_'+i;
+    //販売時予定送料変更時の処理
     document.getElementById(txtFId).addEventListener('change', function(){
       //table_int =intTable(table);
       table = document.getElementById('priceTable');
       const table_tmp =intTable(table);
       const table_int=table_tmp;
 
-      //デバックログ
-      console.log(table_int);
-
+      //販売時手数料の計算
       sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
-      console.log(sSetUp_arr);
+      //販売時手数料の表示
       print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
 
-      console.log(sSetUp_arr);
+      //単体利益額の計算
       arr_uniProfits=calc_uniProfits(table_int,sSetUp_arr);
-      console.log(arr_uniProfits);
+      //単体利益額の表示
       print_sSet_cells(arr_uniProfits,"unitprofit_");
 
+      //合計利益額の計算
       arr_totalProfits=calc_totalProfits(table_int,arr_uniProfits);
-      console.log(arr_totalProfits);
+      //合計利益額の用事
       print_sSet_cells(arr_totalProfits,"totalprofit_");
 
     });
-
+    //販売予定価格変更時の処理
     document.getElementById(txtFId2).addEventListener('change', function(){
       const table_tmp =intTable(table);
       const table_int=table_tmp;
 
-      console.log(table_int);
+      //console.log(table_int);
 
       sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
       print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
 
       console.log(sSetUp_arr);
       const arr_uniProfits=calc_uniProfits(table_int,sSetUp_arr);
-      console.log(arr_uniProfits);
+      //console.log(arr_uniProfits);
       print_sSet_cells(arr_uniProfits,"unitprofit_");
 
 
       arr_totalProfits=calc_totalProfits(table_int,arr_uniProfits);
-      console.log(arr_totalProfits);
+      //console.log(arr_totalProfits);
       print_sSet_cells(arr_totalProfits,"totalprofit_");
 
     });
-
+    /*
+    //ボタン押した後の処理
     //textformのid
     bId = "calcB_"+i;
       document.getElementById(bId).addEventListener('click', function(){
-
         console.log('id名「' + this.id + '」のボタンを押しました。');
         console.log(table_int);
         console.log(calc_selling_setUp_fee(table_int,table_pSet));
@@ -193,7 +202,7 @@ window.addEventListener('DOMContentLoaded',function(){
         sSetUp_arr=calc_selling_setUp_fee(table_int,table_pSet);
         print_sSet_cells(sSetUp_arr,"sSetUp_fee_");
       });
-
+      */
   }
 
 });
